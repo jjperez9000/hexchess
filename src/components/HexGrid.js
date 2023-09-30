@@ -1,8 +1,8 @@
 /** @format */
-
-import React from "react";
-import Hexagon from "./Hexagon"; // Import your Hexagon component
-function HexGrid() {
+import React, { useEffect, useState } from "react";
+import Hexagon from "./Hexagon";
+import Pawn from "./Pieces";
+function HexGrid({ size, pieceLocaitions }) {
 	function getColor(row) {
 		const colors = ["#8ca2ad", "#adbad2", "#dee3e6"];
 		return colors[row % 3];
@@ -21,6 +21,7 @@ function HexGrid() {
 		} else {
 			return -(col + (row - 1) / 2 - 7);
 		}
+		console.log(pieceLocaitions);
 	}
 	function checkValid(r, s, max) {
 		//if abolute value of r or s > max return false
@@ -29,15 +30,36 @@ function HexGrid() {
 		}
 		return true;
 	}
-	const CHESSROWS = 21; //should be 21
+	function getQRS(q, r, s) {
+		return [q + 5, r + 5, s + 5];
+	}
+	const CHESSROWS = 21;
 	const CHESSCOLS = 12;
-	const size = 50; // side length of hexagon
 	const height = (Math.sqrt(3) / 2) * size * 2; // height of the hexagons
 	const width = 2 * size; // width of the hexagons
 	const vertGap = height / 2; // vertical gap between hexagons, adjusted to 3/4 of height
 	const horizGap = (width * 3) / 2; // horizontal gap between hexagons, adjusted to 3/4 of width
 	const hexagons = [];
 
+	useEffect(() => {
+		console.log(pieceLocaitions);
+	}, [pieceLocaitions]);
+	function getPiece(q, r, s) {
+		// Ensure indices are within bounds
+		if (
+			q + 5 >= 0 &&
+			q + 5 < 11 &&
+			r + 5 >= 0 &&
+			r + 5 < 11 &&
+			s + 5 >= 0 &&
+			s + 5 < 11
+		) {
+			return pieceLocaitions[q + 5][r + 5][s + 5];
+		} else {
+			console.error("Indices out of bounds:", q + 5, r + 5, s + 5);
+			return null;
+		}
+	}
 	for (let row = 0; row < CHESSROWS; row++) {
 		let hexesInRow = row % 2 === 0 ? 5 : 6;
 		for (let col = 0; col < hexesInRow; col++) {
@@ -50,36 +72,40 @@ function HexGrid() {
 			let x = getX(row, col);
 			let y = row * vertGap;
 			hexagons.push(
-				<g key={`${row}-${col}`} transform={`translate(${x},${y})`}>
-					{checkValid(r, s, 5) && (
-						<Hexagon
-							size={size}
-							color={getColor(row)}
-							text={`q:${q},s:${s},r:${r}`}
-						/>
-					)}
-				</g>
+				<>
+					<g key={`${row}-${col}`} transform={`translate(${x},${y})`}>
+						{checkValid(r, s, 5) && (
+							<Hexagon
+								size={size}
+								color={getColor(row)}
+								// text={`q:${q},s:${s},r:${r}`}
+								// text={`q:${q + 5},s:${s + 5},r:${r + 5}`}
+								// text={pieceMap[getPiece(q, r, s)]}
+								// text={pieceLocaitions[0][0][0]}
+							/>
+						)}
+						<p>test</p>
+						{checkValid(r, s, 5) && (
+							<g transform={`translate(${width / 4},${height / 4})`}>
+								{pieceMap[getPiece(q, r, s)]}
+							</g>
+						)}
+					</g>
+				</>
 			);
 		}
 	}
-	// const Pawn = () => {
-	// 	return (
-	// 		<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAACm0lEQVR4nO2ZW0tUURTHfyJqkVR2MyqIbhBNaT3U2Keoz+AHiD5EN4yy9E2IIrLe69G3oILSotQuRpQZ1IvdrGYEydjwP7ARZuacM/ucWcT8YDHOzF632fusvfYWmjRp0qTJf0QBGASmgF+SKX3mvjNPOzAMLAHLFcR9N6SxJmkHxhRsCbgCHAPWSIrAVaCsMWNWkxlWgB+BQ1XG9QJzGutmxhQFLZlSjST8ZMrSOYAhBvULu9e4DEnnMoaYVlBHE+gUpTOJIRYUVGcCnU7p/MQQP1IkslY63zDEpIJy5TYufdJ5jiEuKSi3TyQt1xcxWH7LKq21OAwsWiy//qzM1UjGJfHJ4mxEdAD3FGBZ+0SfCoCT41pOixpz12qLsh44X6VZXCnngHUYoxt4mSCJSKala4brCuyJdve2KmPbVKbHpXMNQ3xRUHsS6OyVzmcM8VVBueDisk868xjipoIaVzNYa2kVvaV1A0N0A29TPOwzwBaMcVbB/YlxZi/p7zMY46CCc0EeiTHebZR/pVOwtKxmUpwQR6TzxsLy2uqdDh+pTYnLauCptzE6Ww3BOX7lVauuFDY2Ay+8mdlJzmzykpgANtRhy0/mnd7nRnQD8gzYGMCem83HKQ5nqXBn7AEda6uV13plST4G5DMoO4APGQZfSd4D20MmckeGH+gmsZXsaAV65Mv5HM3iumcX+bFbPr9n0d02IpH5kEZHvaXVk8PS6gUeyuetkMa3AbMNeNhn5Tso/Q1IpD90Evv10EW3H1lzQb4W1FkHYZX6oGi9tpA9LcBt+XydsBmtyGmvQw1iMCYdXj93KoTBqNU+Qf6clG8XQ938lrE0bXq9dHlXsHUz0YBqtbxCgvx7zl373/cun/MU59P5rlm5/gFMiIx5tnJjwQAAAABJRU5ErkJggg==" />
-	// 	);
-	// };
-
 	return (
 		<>
-			<Pawn />
 			<svg
 				width={(CHESSCOLS / 2) * width + (CHESSCOLS / 2 - 1) * size}
 				height={(CHESSROWS + 1) * vertGap}
 			>
 				{hexagons}
 			</svg>
-			<div></div>
 		</>
 	);
 }
 
+const pieceMap = [<></>, <Pawn />];
 export default HexGrid;
