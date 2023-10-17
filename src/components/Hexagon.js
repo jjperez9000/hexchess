@@ -8,6 +8,8 @@ function Hexagon({
 	borderColor = "black",
 	borderWidth = 0,
 	text = "",
+	x = 0,
+	y = 0,
 }) {
 	const height = (Math.sqrt(3) / 2) * size * 2;
 	const hexHeight = size * 2;
@@ -26,29 +28,31 @@ function Hexagon({
 		.join(" ");
 
 	return (
-		<svg
-			width={hexHeight}
-			height={hexWidth}
-			viewBox={`0 0 ${hexHeight} ${hexWidth}`}
-		>
-			<polygon
-				points={points}
-				fill={color}
-				stroke={borderColor}
-				strokeWidth={borderWidth}
-			/>
-			<text
-				x={centerX}
-				y={centerY}
-				fill="black"
-				textAnchor="middle"
-				stroke="none"
-				dominantBaseline="middle"
-				fontSize={size / 3}
+		<g transform={`translate(${x},${y})`}>
+			<svg
+				width={hexHeight}
+				height={hexWidth}
+				viewBox={`0 0 ${hexHeight} ${hexWidth}`}
 			>
-				{text}
-			</text>
-		</svg>
+				<polygon
+					points={points}
+					fill={color}
+					stroke={borderColor}
+					strokeWidth={borderWidth}
+				/>
+				<text
+					x={centerX}
+					y={centerY}
+					fill="black"
+					textAnchor="middle"
+					stroke="none"
+					dominantBaseline="middle"
+					fontSize={size / 3}
+				>
+					{text}
+				</text>
+			</svg>
+		</g>
 	);
 }
 

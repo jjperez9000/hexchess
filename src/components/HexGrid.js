@@ -1,7 +1,8 @@
 /** @format */
 import React, { useEffect, useState } from "react";
 import Hexagon from "./Hexagon";
-function HexGrid({ size, pieceLocaitions, setHexCoords }) {
+function HexGrid({ size, setHexCoords }) {
+	// simple helper functions for offsets and coloring
 	function getColor(row) {
 		const colors = ["#8ca2ad", "#adbad2", "#dee3e6"];
 		return colors[row % 3];
@@ -28,14 +29,24 @@ function HexGrid({ size, pieceLocaitions, setHexCoords }) {
 		}
 		return true;
 	}
+	function setHexLocaion(q, r, s, x, y, color) {
+		hexagonLocations[q + 5][r + 5] = { x: x, y: y, color: color };
+	}
+	// constants for the grid
 	const CHESSROWS = 21;
 	const CHESSCOLS = 12;
+
+	// a bunch of hexagon math
 	const height = (Math.sqrt(3) / 2) * size * 2; // height of the hexagons
 	const width = 2 * size; // width of the hexagons
 	const vertGap = height / 2; // vertical gap between hexagons, adjusted to 3/4 of height
 	const horizGap = (width * 3) / 2; // horizontal gap between hexagons, adjusted to 3/4 of width
+
+	// array of hexagon objects to be displayed
 	const hexagons = [];
-	const hexagonLocaions = [];
+	// array to asociae q,r,[not s] to x,y
+	// this is sent up a level so the game knows were to place a piece
+	const hexagonLocations = Array.from({ length: 11 }, () => []);
 	for (let row = 0; row < CHESSROWS; row++) {
 		let hexesInRow = row % 2 === 0 ? 5 : 6;
 		for (let col = 0; col < hexesInRow; col++) {
@@ -48,37 +59,14 @@ function HexGrid({ size, pieceLocaitions, setHexCoords }) {
 			let x = getX(row, col);
 			let y = row * vertGap;
 			if (checkValid(r, s, 5)) {
-				hexagonLocaions.push({ x: x, y: y, q: q, r: r, s: s });
-				hexagons.push(
-					<>
-						<g key={`${row}-${col}`} transform={`translate(${x},${y})`}>
-							<Hexagon
-								size={size}
-								color={getColor(row)}
-								// text={`q:${q},s:${s},r:${r}`}
-								// text={`q:${q + 5},s:${s + 5},r:${r + 5}`}
-								// text={PieceMap[getPiece(q, r, s)]}
-								// text={pieceLocaitions[0][0][0]}
-							/>
-						</g>
-					</>
-				);
+				setHexLocaion(q, r, s, x + width / 2, y + height / 2, getColor(row));
 			}
 		}
 	}
 	useEffect(() => {
-		setHexCoords(hexagonLocaions);
+		setHexCoords(hexagonLocations);
 	}, []);
-	return (
-		<>
-			<svg
-				width={(CHESSCOLS / 2) * width + (CHESSCOLS / 2 - 1) * size}
-				height={(CHESSROWS + 1) * vertGap}
-			>
-				{hexagons}
-			</svg>
-		</>
-	);
+	return <></>;
 }
 
 export default HexGrid;

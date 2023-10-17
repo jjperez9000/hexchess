@@ -2,8 +2,13 @@
 
 // Pawn.js
 import React from "react";
-export function Piece({ piece }) {
-	return pieces[piece];
+import CanvasItem from "./CanvasItem";
+export function Piece({ piece, x, y }) {
+	return (
+		<CanvasItem x={x} y={y}>
+			{pieces[piece]}
+		</CanvasItem>
+	);
 }
 const pieces = [
 	<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="45" height="45">
