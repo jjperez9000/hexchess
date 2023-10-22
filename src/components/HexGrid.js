@@ -1,7 +1,5 @@
 /** @format */
-import React, { useEffect, useState } from "react";
-import Hexagon from "./Hexagon";
-function HexGrid({ size, setHexCoords }) {
+function GenHexCoords({ size }) {
 	// simple helper functions for offsets and coloring
 	function getColor(row) {
 		const colors = ["#8ca2ad", "#adbad2", "#dee3e6"];
@@ -30,11 +28,17 @@ function HexGrid({ size, setHexCoords }) {
 		return true;
 	}
 	function setHexLocaion(q, r, s, x, y, color) {
-		hexagonLocations[q + 5][r + 5] = { x: x, y: y, color: color };
+		hexagonLocations[q + 5][r + 5] = {
+			x: x,
+			y: y,
+			color: color,
+			q: q,
+			r: r,
+			s: s,
+		};
 	}
 	// constants for the grid
 	const CHESSROWS = 21;
-	const CHESSCOLS = 12;
 
 	// a bunch of hexagon math
 	const height = (Math.sqrt(3) / 2) * size * 2; // height of the hexagons
@@ -43,7 +47,6 @@ function HexGrid({ size, setHexCoords }) {
 	const horizGap = (width * 3) / 2; // horizontal gap between hexagons, adjusted to 3/4 of width
 
 	// array of hexagon objects to be displayed
-	const hexagons = [];
 	// array to asociae q,r,[not s] to x,y
 	// this is sent up a level so the game knows were to place a piece
 	const hexagonLocations = Array.from({ length: 11 }, () => []);
@@ -63,10 +66,7 @@ function HexGrid({ size, setHexCoords }) {
 			}
 		}
 	}
-	useEffect(() => {
-		setHexCoords(hexagonLocations);
-	}, []);
-	return <></>;
+	return hexagonLocations;
 }
 
-export default HexGrid;
+export default GenHexCoords;
